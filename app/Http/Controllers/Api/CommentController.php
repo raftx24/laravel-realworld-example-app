@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Article;
 use App\Comment;
+use App\Invoice;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Api\CreateComment;
 use App\Http\Requests\Api\DeleteComment;
 use App\RealWorld\Transformers\CommentTransformer;
@@ -21,6 +23,7 @@ class CommentController extends ApiController
 
         $this->middleware('auth.api')->except('index');
         $this->middleware('auth.api:optional')->only('index');
+        $this->middleware('checkBan')->only(['store', 'update']);
     }
 
     /**
@@ -45,10 +48,16 @@ class CommentController extends ApiController
      */
     public function store(CreateComment $request, Article $article)
     {
+        DB::beginTransaction();
+
         $comment = $article->comments()->create([
             'body' => $request->input('comment.body'),
             'user_id' => auth()->id(),
         ]);
+
+        Invoice::createCommentInvoice($comment);
+
+        DB::commit();
 
         return $this->respondWithTransformer($comment);
     }

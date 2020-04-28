@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use Tests\TestCase;
+use App\Enums\InvoiceType;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class CommentTest extends TestCase
@@ -38,6 +39,31 @@ class CommentTest extends TestCase
                     ],
                 ]
             ]);
+    }
+
+    /** @test */
+    public function it_creates_invoice_on_successfully_adding_more_than_five_comment()
+    {
+        $data = [
+            'comment' => [
+                'body' => 'This is a comment'
+            ]
+        ];
+
+        for ($i = 0; $i < config('prices.free_comments'); $i++) {
+            $this->postJson("/api/articles/{$this->article->slug}/comments", $data, $this->headers);
+        }
+
+        $this->assertDatabaseMissing('invoices', [
+            'type' => InvoiceType::COMMENT,
+        ]);
+
+        $this->postJson("/api/articles/{$this->article->slug}/comments", $data, $this->headers);
+
+        $this->assertDatabaseHas('invoices', [
+            'type' => InvoiceType::COMMENT,
+            'debit' => config('prices.comment')
+        ]);
     }
 
     /** @test */
