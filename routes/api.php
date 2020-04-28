@@ -41,4 +41,5 @@ Route::group(['namespace' => 'Api'], function () {
 
     Route::get('tags', 'TagController@index');
 
+    Route::get('invoices', 'InvoiceController@index');
 });

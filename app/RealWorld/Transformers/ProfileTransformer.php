@@ -6,13 +6,14 @@ class ProfileTransformer extends Transformer
 {
     protected $resourceName = 'profile';
 
-    public function transform($data)
+    public function transform($user)
     {
         return [
-            'username'  => $data['username'],
-            'bio'       => $data['bio'],
-            'image'     => $data['image'],
-            'following' => $data['following'],
+            'username'  => $user['username'],
+            'bio'       => $user['bio'],
+            'image'     => $user['image'],
+            'following' => $user['following'],
+            'balance' => $user->balance(),
         ];
     }
 }
