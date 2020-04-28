@@ -17,6 +17,7 @@ class FavoriteController extends ApiController
         $this->transformer = $transformer;
 
         $this->middleware('auth.api');
+        $this->middleware('checkBan')->only(['add']);
     }
 
     /**

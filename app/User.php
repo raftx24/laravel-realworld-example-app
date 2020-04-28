@@ -3,14 +3,17 @@
 namespace App;
 
 use JWTAuth;
+use App\Jobs\DeleteUserJob;
+use Illuminate\Support\Facades\DB;
 use App\RealWorld\Follow\Followable;
 use App\RealWorld\Favorite\HasFavorite;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    use Notifiable, Followable, HasFavorite;
+    use SoftDeletes, Notifiable, Followable, HasFavorite;
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +21,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'username', 'email', 'password', 'bio', 'image'
+        'username', 'email', 'password', 'bio', 'image', 'is_banned'
     ];
 
     /**
@@ -28,6 +31,16 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password', 'remember_token',
+    ];
+
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_banned' => 'boolean',
     ];
 
     /**
@@ -101,5 +114,29 @@ class User extends Authenticatable
     public function getRouteKeyName()
     {
         return 'username';
+    }
+
+    public function balance()
+    {
+        return $this->invoices->sum->balance(); //TODO::REMOVE IT!
+    }
+
+    public function ban()
+    {
+        $this->fill([
+            'is_banned' => true
+        ])->save();
+
+        dispatch(new DeleteUserJob($this->id));
+    }
+
+    public function delete()
+    {
+        DB::transaction(function () {
+            $this->articles()->delete();
+            $this->comments()->delete();
+
+            parent::delete();
+        });
     }
 }
