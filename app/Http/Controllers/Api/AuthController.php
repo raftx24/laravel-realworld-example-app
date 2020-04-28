@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use Auth;
 use App\User;
+use App\Invoice;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Api\LoginUser;
 use App\Http\Requests\Api\RegisterUser;
 use App\RealWorld\Transformers\UserTransformer;
@@ -46,11 +48,17 @@ class AuthController extends ApiController
      */
     public function register(RegisterUser $request)
     {
+        DB::beginTransaction();
+
         $user = User::create([
             'username' => $request->input('user.username'),
             'email' => $request->input('user.email'),
             'password' => $request->input('user.password'),
         ]);
+
+        Invoice::createRegistrationInvoice($user);
+
+        DB::commit();
 
         return $this->respondWithTransformer($user);
     }

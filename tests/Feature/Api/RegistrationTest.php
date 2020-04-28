@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use Tests\TestCase;
+use App\Enums\InvoiceType;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class RegistrationTest extends TestCase
@@ -30,6 +31,37 @@ class RegistrationTest extends TestCase
                 'bio' => null,
                 'image' => null,
             ]
+        ]);
+
+        $this->assertArrayHasKey('token', $response->json()['user'], 'Token not found');
+    }
+
+    /** @test */
+    public function it_creates_invoice_for_registration()
+    {
+        $data = [
+            'user' => [
+                'username' => 'test',
+                'email' => 'test@test.com',
+                'password' => 'secret',
+            ]
+        ];
+
+        $response = $this->postJson('/api/users', $data);
+
+        $response->assertStatus(200)
+            ->assertJson([
+            'user' => [
+                'email' => 'test@test.com',
+                'username' => 'test',
+                'bio' => null,
+                'image' => null,
+            ]
+        ]);
+
+        $this->assertDatabaseHas('invoices', [
+            'type' => InvoiceType::REGISTER,
+            'credit' => config('prices.registration'),
         ]);
 
         $this->assertArrayHasKey('token', $response->json()['user'], 'Token not found');

@@ -70,6 +70,17 @@ class User extends Authenticatable
         return $this->hasMany(Comment::class)->latest();
     }
 
+
+    /**
+     * Get all the invoices by the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class)->latest();
+    }
+
     /**
      * Get all the articles of the following users.
      *
