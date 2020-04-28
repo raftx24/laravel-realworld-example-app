@@ -6,10 +6,11 @@ use App\RealWorld\Slug\HasSlug;
 use App\RealWorld\Filters\Filterable;
 use App\RealWorld\Favorite\Favoritable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model
 {
-    use Favoritable, Filterable, HasSlug;
+    use SoftDeletes, Favoritable, Filterable, HasSlug;
 
     /**
      * The attributes that are mass assignable.
@@ -64,6 +65,16 @@ class Article extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the invoice of the article.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
     }
 
     /**

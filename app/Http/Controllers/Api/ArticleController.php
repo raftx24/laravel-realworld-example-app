@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Tag;
+use App\Invoice;
 use App\Article;
+use Illuminate\Support\Facades\DB;
 use App\RealWorld\Paginate\Paginate;
 use App\RealWorld\Filters\ArticleFilter;
 use App\Http\Requests\Api\CreateArticle;
@@ -24,6 +26,7 @@ class ArticleController extends ApiController
 
         $this->middleware('auth.api')->except(['index', 'show']);
         $this->middleware('auth.api:optional')->only(['index', 'show']);
+        $this->middleware('checkBan')->only(['store', 'update']);
     }
 
     /**
@@ -47,6 +50,8 @@ class ArticleController extends ApiController
      */
     public function store(CreateArticle $request)
     {
+        DB::beginTransaction();
+
         $user = auth()->user();
 
         $article = $user->articles()->create([
@@ -65,6 +70,10 @@ class ArticleController extends ApiController
 
             $article->tags()->attach($tags);
         }
+
+        Invoice::createArticleInvoice($article);
+
+        DB::commit();
 
         return $this->respondWithTransformer($article);
     }

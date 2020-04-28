@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use Tests\TestCase;
+use App\Enums\InvoiceType;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class ArticleCreateTest extends TestCase
@@ -89,6 +90,25 @@ class ArticleCreateTest extends TestCase
                     'tagList' => ['list must be an array.'],
                 ]
             ]);
+    }
+
+    /** @test */
+    public function it_creates_an_invoice_after_article_created()
+    {
+        $data = [
+            'article' => [
+                'title' => 'test title',
+                'description' => 'test description',
+                'body' => 'test body with random text',
+            ]
+        ];
+
+        $response = $this->postJson('/api/articles', $data, $this->headers);
+
+        $this->assertDatabaseHas('invoices', [
+            'type' => InvoiceType::ARTICLE,
+            'debit' => config('prices.article'),
+        ]);
     }
 
     /** @test */
