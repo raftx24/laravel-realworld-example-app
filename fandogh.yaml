@@ -1,0 +1,35 @@
+kind: ExternalService
+name: ${APP_NAME}
+spec:
+  image: ${IMAGE_URL}:${TAG}
+  image_pull_policy: Always
+  image_pull_secret: $SEC_NAME
+  env:
+    - name: APP_DEBUG
+      value: false
+    - name: APP_ENV
+      value: production
+    - name: APP_URL
+      value: ${DEPLOY_URL}
+    - name: APP_KEY
+      value: ${APP_KEY}
+    - name: JWT_SECRET
+      value: ${JWT_SECRET}
+    - name: DB_DATABASE
+      value: ${DB_DATABASE}
+    - name: DB_USERNAME
+      value: ${DB_USER}
+    - name: DB_PASSWORD
+      value: ${DB_PASS}
+    - name: DB_CONNECTION
+      value: mysql
+    - name: DB_HOST
+      value: ${DB_HOST}
+    - name: QUEUE_DRIVER
+      value: redis
+    - name: REDIS_HOST
+      value: ${REDIS_HOST}
+    - name: CONTAINER_ROLE
+      value: http
+  domains:
+     - name: ${DEPLOY_URL}
