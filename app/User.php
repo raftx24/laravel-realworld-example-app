@@ -6,6 +6,7 @@ use JWTAuth;
 use App\Jobs\DeleteUserJob;
 use Illuminate\Support\Facades\DB;
 use App\RealWorld\Follow\Followable;
+use Illuminate\Support\Facades\Cache;
 use App\RealWorld\Favorite\HasFavorite;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -118,7 +119,14 @@ class User extends Authenticatable
 
     public function balance()
     {
-        return $this->invoices->sum->balance(); //TODO::REMOVE IT!
+        return Cache::rememberForever("user_balance_{$this->id}", function () {
+            return $this->invoices->sum->balance();
+        });
+    }
+
+    public function balanceUpdated()
+    {
+        Cache::forget("user_balance_{$this->id}");
     }
 
     public function ban()

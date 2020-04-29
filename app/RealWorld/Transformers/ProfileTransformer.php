@@ -13,6 +13,7 @@ class ProfileTransformer extends Transformer
             'bio'       => $user['bio'],
             'image'     => $user['image'],
             'following' => $user['following'],
+            'is_banned' => $user['is_banned'],
             'balance' => $user->balance(),
         ];
     }

@@ -25,6 +25,8 @@ class Invoice extends Model
         static::created(function (Invoice $invoice) {
             $invoice->checkLowBalance()
                 ->checkBanBalance();
+
+            $invoice->user->balanceUpdated();
         });
     }
 

@@ -15,7 +15,7 @@ class InvoiceController extends ApiController
     {
         $this->transformer = $transformer;
 
-        $this->middleware('auth.api')->except('index');
+        $this->middleware('auth.api');
     }
 
     /**
@@ -25,8 +25,8 @@ class InvoiceController extends ApiController
      */
     public function index()
     {
-        return $this->respondWithTransformer(
-            auth()->user()->invoices
-        );
+        $invoices = auth()->user()->invoices;
+
+        return $this->respondWithTransformer($invoices);
     }
 }
